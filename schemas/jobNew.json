@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "default": {},
+  "title": "Root Schema",
+  "required": ["title", "salary", "equity", "companyHandle"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "The title Schema",
+      "examples": ["new"]
+    },
+    "salary": {
+      "type": "integer",
+      "default": 0,
+      "minimum": 0,
+      "title": "The salary Schema",
+      "examples": [10]
+    },
+    "equity": {
+      "type": "number",
+      "default": 0.0,
+      "minimum": 0,
+      "maximum": 1,
+      "title": "The equity Schema",
+      "examples": [0.07]
+    },
+    "companyHandle": {
+      "type": "string",
+      "title": "The companyHandle Schema",
+      "examples": ["c1"]
+    }
+  },
+  "examples": [
+    {
+      "title": "new",
+      "salary": 10,
+      "equity": 0.07,
+      "companyHandle": "c1"
+    }
+  ]
+}

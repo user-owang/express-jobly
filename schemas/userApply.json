@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "default": {},
+  "title": "Root Schema",
+  "required": ["username", "jobID"],
+  "properties": {
+    "username": {
+      "type": "string",
+      "title": "The username Schema",
+      "examples": ["username"]
+    },
+    "jobID": {
+      "type": "integer",
+      "title": "The jobID Schema",
+      "examples": [10]
+    }
+  },
+  "examples": [
+    {
+      "username": "username",
+      "jobID": 10
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
 const { sqlForPartialUpdate } = require("../helpers/sql");
+const companySearchSchema = require("../schemas/companySearch.json");
 
 /** Related functions for companies. */
 
@@ -18,26 +19,21 @@ class Company {
 
   static async create({ handle, name, description, numEmployees, logoUrl }) {
     const duplicateCheck = await db.query(
-          `SELECT handle
+      `SELECT handle
            FROM companies
            WHERE handle = $1`,
-        [handle]);
+      [handle]
+    );
 
     if (duplicateCheck.rows[0])
       throw new BadRequestError(`Duplicate company: ${handle}`);
 
     const result = await db.query(
-          `INSERT INTO companies
+      `INSERT INTO companies
            (handle, name, description, num_employees, logo_url)
            VALUES ($1, $2, $3, $4, $5)
            RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`,
-        [
-          handle,
-          name,
-          description,
-          numEmployees,
-          logoUrl,
-        ],
+      [handle, name, description, numEmployees, logoUrl]
     );
     const company = result.rows[0];
 
@@ -49,15 +45,45 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
-    const companiesRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
+  static async findAll(filters) {
+    let queryString = `
+      SELECT handle,
+          name,
+          description,
+          num_employees AS "numEmployees",
+          logo_url AS "logoUrl"
+        FROM companies`;
+    let whereStrings = [];
+    let values = [];
+    if (filters) {
+      if (
+        filters["minEmployees"] !== undefined &&
+        filters["maxEmployees"] !== undefined
+      ) {
+        if (filters["minEmployees"] > filters["maxEmployees"]) {
+          throw new BadRequestError(
+            "minEmployees cannot be greater than maxEmployees"
+          );
+        }
+      }
+      if (filters["name"] !== undefined) {
+        values.push(`%${filters["name"]}%`);
+        whereStrings.push(`name ILIKE $${values.length}`);
+      }
+      if (filters["minEmployees"] !== undefined) {
+        values.push(filters["minEmployees"]);
+        whereStrings.push(`numEmployees >= $${values.length}`);
+      }
+      if (filters["maxEmployees"] !== undefined) {
+        values.push(filters["maxEmployees"]);
+        whereStrings.push(`numEmployees <= $${values.length}`);
+      }
+      if (whereStrings.length > 0) {
+        queryString += " WHERE " + whereStrings.join(" AND ");
+      }
+    }
+    queryString += " ORDER BY name";
+    const companiesRes = await db.query(queryString, values);
     return companiesRes.rows;
   }
 
@@ -71,18 +97,28 @@ class Company {
 
   static async get(handle) {
     const companyRes = await db.query(
-          `SELECT handle,
+      `SELECT handle,
                   name,
                   description,
                   num_employees AS "numEmployees",
                   logo_url AS "logoUrl"
            FROM companies
            WHERE handle = $1`,
-        [handle]);
+      [handle]
+    );
 
     const company = companyRes.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
+
+    const jobRes = await db.query(
+      `SELECT id, title, salary, equity
+         FROM jobs
+         WHERE company_handle = $1`,
+      [handle]
+    );
+
+    company["jobs"] = jobRes.rows;
 
     return company;
   }
@@ -100,12 +136,10 @@ class Company {
    */
 
   static async update(handle, data) {
-    const { setCols, values } = sqlForPartialUpdate(
-        data,
-        {
-          numEmployees: "num_employees",
-          logoUrl: "logo_url",
-        });
+    const { setCols, values } = sqlForPartialUpdate(data, {
+      numEmployees: "num_employees",
+      logoUrl: "logo_url",
+    });
     const handleVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE companies 
@@ -131,16 +165,16 @@ class Company {
 
   static async remove(handle) {
     const result = await db.query(
-          `DELETE
+      `DELETE
            FROM companies
            WHERE handle = $1
            RETURNING handle`,
-        [handle]);
+      [handle]
+    );
     const company = result.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
   }
 }
-
 
 module.exports = Company;

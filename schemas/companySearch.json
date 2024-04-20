@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "title": "Root Schema",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "The name Schema",
+      "examples": ["some"]
+    },
+    "minEmployees": {
+      "type": "integer",
+      "title": "The minEmployees Schema",
+      "examples": [5]
+    },
+    "maxEmployees": {
+      "type": "integer",
+      "title": "The maxEmployees Schema",
+      "examples": [10]
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "name": "some",
+      "minEmployees": 5,
+      "maxEmployees": 10
+    }
+  ]
+}

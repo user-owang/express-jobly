@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "title": "Root Schema",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "The title Schema",
+      "examples": ["CEO"]
+    },
+    "minSalary": {
+      "type": "integer",
+      "title": "The minSalary Schema",
+      "minimum": 0,
+      "examples": [50000]
+    },
+    "hasEquity": {
+      "type": "boolean",
+      "title": "The hasEquity Schema",
+      "examples": [true],
+      "default": false
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "title": "CEO",
+      "minSalary": 50000,
+      "hasEquity": true
+    }
+  ]
+}
