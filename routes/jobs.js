@@ -11,6 +11,7 @@ const Job = require("../models/job");
 
 const jobNewSchema = require("../schemas/jobNew.json");
 const jobSearchSchema = require("../schemas/jobSearch.json");
+const jobUpdateSchema = require("../schemas/jobUpdate.json");
 
 const router = new express.Router();
 
@@ -115,7 +116,7 @@ router.patch("/:id", adminCheck, async function (req, res, next) {
 router.delete("/:id", adminCheck, async function (req, res, next) {
   try {
     await Job.remove(req.params.id);
-    return res.json({ deleted: req.params.id });
+    return res.json({ deleted: +req.params.id });
   } catch (err) {
     return next(err);
   }

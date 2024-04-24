@@ -192,7 +192,7 @@ class User {
       `SELECT job_id FROM applications WHERE username = $1`,
       [username]
     );
-    jobs = appRes.rows.map((j) => j.job_id);
+    let jobs = appRes.rows.map((j) => j.job_id);
     user.jobs = jobs;
 
     return user;

@@ -23,6 +23,8 @@ class Job {
       [title, salary, equity, companyHandle]
     );
     const job = result.rows[0];
+    job.equity = +job.equity;
+    job.salary = +job.salary;
 
     return job;
   }
@@ -54,14 +56,19 @@ class Job {
         whereStrings.push(`j.title ILIKE $${values.length}`);
       }
       if (filters["hasEquity"] === true) {
-        whereStrings.push(`j.equity > 0}`);
+        whereStrings.push(`j.equity > 0`);
       }
       if (whereStrings.length > 0) {
         queryString += " WHERE " + whereStrings.join(" AND ");
       }
     }
+
     queryString += " ORDER BY title";
     const jobsRes = await db.query(queryString, values);
+    for (let job of jobsRes.rows) {
+      job.equity = +job.equity;
+      job.salary = +job.salary;
+    }
     return jobsRes.rows;
   }
 
@@ -90,6 +97,9 @@ class Job {
 
     if (!job) throw new NotFoundError(`No job: ${id}`);
 
+    job.equity = +job.equity;
+    job.salary = +job.salary;
+
     return job;
   }
 
@@ -116,12 +126,19 @@ class Job {
                                 title, 
                                 salary, 
                                 equity,
-                                company_handle`;
+                                company_handle as "companyHandle"`;
     const result = await db.query(querySql, [...values, id]);
-    const job = result.rows[0];
+    let job = result.rows[0];
 
-    if (!job) throw new NotFoundError(`No job: ${id}`);
-
+    if (!job) {
+      throw new NotFoundError(`No job: ${id}`);
+    }
+    console.log(job);
+    job.equity = +job.equity;
+    console.log(job.equity);
+    console.log(+job.equity);
+    job.salary = +job.salary;
+    console.log(job);
     return job;
   }
 

@@ -8,6 +8,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  c1CEO,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -171,12 +172,22 @@ describe("findAll", function () {
     ]);
   });
   test("fails: min > max", async function () {
-    let companies = await Company.findAll({
-      name: "c",
-      maxEmployees: 1,
-      minEmployees: 2,
-    });
-    expect(companies).toThrow();
+    try {
+      await Company.findAll({
+        name: "c",
+        maxEmployees: 1,
+        minEmployees: 2,
+      });
+      // If the function doesn't throw an error, fail the test
+      fail("Expected error to be thrown, but it didn't.");
+    } catch (error) {
+      // Assert that the error is of type BadRequestError
+      expect(error instanceof BadRequestError).toBe(true);
+      // Assert the error message
+      expect(error.message).toBe(
+        "minEmployees cannot be greater than maxEmployees"
+      );
+    }
   });
 });
 

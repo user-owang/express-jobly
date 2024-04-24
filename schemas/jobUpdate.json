@@ -22,11 +22,13 @@
       "examples": [0.07]
     }
   },
+  "additionalProperties": false,
   "examples": [
     {
       "title": "new",
       "salary": 10,
       "equity": 0.07
     }
-  ]
+  ],
+  "required": []
 }

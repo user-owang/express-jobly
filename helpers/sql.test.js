@@ -13,7 +13,7 @@ describe("sqlForPartialUpdate", function () {
   });
 
   test("updates 2 items", function () {
-    const result = sqlForPartialUpdate({ age: 69, dept: "test" });
+    const result = sqlForPartialUpdate({ age: 69, dept: "test" }, {});
     expect(result).toEqual({
       setCols: '"age"=$1, "dept"=$2',
       values: [69, "test"],

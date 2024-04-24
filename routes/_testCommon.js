@@ -11,9 +11,13 @@ const c2CTO = 500;
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
-  await db.query("DELETE FROM users");
+  await db.query("DELETE FROM users CASCADE");
   // noinspection SqlWithoutWhere
-  await db.query("DELETE FROM companies");
+  await db.query("DELETE FROM companies CASCADE");
+
+  await db.query("DELETE FROM jobs CASCADE");
+
+  await db.query("DELETE FROM applications CASCADE");
 
   await Company.create({
     handle: "c1",
@@ -64,8 +68,8 @@ async function commonBeforeAll() {
   await db.query(`
   INSERT INTO jobs(id, title, salary, equity, company_handle)
     VALUES (${c1CEO},'CEO', 300000, 0, 'c1'),
-           (${c2CEO},'CEO', '200000', 0.002, 'c2'),
-           (${c2CTO},'CTO', , 100000, 0, 'c2')`);
+           (${c2CEO},'CEO', 200000, 0.002, 'c2'),
+           (${c2CTO},'CTO', 100000, 0, 'c2');`);
 
   await User.apply({ username: "u1", jobID: c1CEO });
   await User.apply({ username: "u1", jobID: c2CTO });
@@ -80,6 +84,10 @@ async function commonAfterEach() {
 }
 
 async function commonAfterAll() {
+  await db.query("DELETE FROM users CASCADE");
+  await db.query("DELETE FROM companies CASCADE");
+  await db.query("DELETE FROM jobs CASCADE");
+  await db.query("DELETE FROM applications CASCADE");
   await db.end();
 }
 

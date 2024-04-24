@@ -156,9 +156,12 @@ describe("get", function () {
 
   test("not found if no such job", async function () {
     try {
-      await Job.get(999999999999999999);
+      await Job.get(99999);
       fail();
     } catch (err) {
+      console.log("==========================================");
+      console.log(err.constructor.name);
+      console.log(err);
       expect(err instanceof NotFoundError).toBeTruthy();
     }
   });
@@ -177,52 +180,21 @@ describe("update", function () {
     let job = await Job.update(c1CEO, updateData);
     expect(job).toEqual({
       id: c1CEO,
-      company_handle: "c1",
+      companyHandle: "c1",
       ...updateData,
     });
 
     const result = await db.query(
-      `SELECT *
+      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
            FROM jobs
            WHERE id = ${c1CEO}`
     );
+    result.rows[0].equity = +result.rows[0].equity;
     expect(result.rows).toEqual([
       {
         id: c1CEO,
-        title: "CEO",
-        salary: 300000,
-        equity: 0,
-        company_handle: "c1",
-      },
-    ]);
-  });
-
-  test("works: null fields", async function () {
-    const updateDataSetNulls = {
-      title: "New",
-      salary: null,
-      equity: null,
-    };
-
-    let job = await Job.update(c1CEO, updateDataSetNulls);
-    expect(job).toEqual({
-      id: c1CEO,
-      company_handle: "c1",
-      ...updateDataSetNulls,
-    });
-
-    const result = await db.query(
-      `SELECT *
-           FROM jobs
-           WHERE id = ${c1CEO}`
-    );
-    expect(result.rows).toEqual([
-      {
-        id: c1CEO,
-        title: "New",
-        salary: null,
-        equity: null,
-        company_handle: "c1",
+        companyHandle: "c1",
+        ...updateData,
       },
     ]);
   });

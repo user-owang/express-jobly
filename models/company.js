@@ -72,11 +72,11 @@ class Company {
       }
       if (filters["minEmployees"] !== undefined) {
         values.push(filters["minEmployees"]);
-        whereStrings.push(`numEmployees >= $${values.length}`);
+        whereStrings.push(`num_employees >= $${values.length}`);
       }
       if (filters["maxEmployees"] !== undefined) {
         values.push(filters["maxEmployees"]);
-        whereStrings.push(`numEmployees <= $${values.length}`);
+        whereStrings.push(`num_employees <= $${values.length}`);
       }
       if (whereStrings.length > 0) {
         queryString += " WHERE " + whereStrings.join(" AND ");
@@ -111,14 +111,19 @@ class Company {
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
 
-    const jobRes = await db.query(
+    const jobsRes = await db.query(
       `SELECT id, title, salary, equity
          FROM jobs
          WHERE company_handle = $1`,
       [handle]
     );
 
-    company["jobs"] = jobRes.rows;
+    for (let job of jobsRes.rows) {
+      job.equity = +job.equity;
+      job.salary = +job.salary;
+    }
+
+    company["jobs"] = jobsRes.rows;
 
     return company;
   }
